@@ -1,0 +1,16 @@
+---
+- hosts: all 
+  become: true
+  serial: 100
+  gather_facts: no
+#  strategy: free
+  tasks:
+  - name: Run cat /proc/cpuinfo | grep 'model name' | uniq | cut -d ":" -f2 | sed 's/ //'
+    shell: hostname=$(hostname) ; cputype=$(cat /proc/cpuinfo | grep 'model name' | uniq | cut -d ":" -f2 | sed 's/ //') ; echo "${hostname}; ${cputype}"
+    register: op
+  - name: Ausgabe
+    debug: var=op.stdout_lines
+  - name: Datei Generieren
+    shell: echo '{{ op.stdout }}' >> /home/kryptopirat/Ansible/CPU-Typs/Auswertung.txt
+    delegate_to: localhost
+    become: false
